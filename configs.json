@@ -1,0 +1,36 @@
+{
+  "Fonts": {
+    "Title": ["Open Sans", 94],
+    "Password Box": "Open Sans",
+    "Submit Button": "Open Sans",
+    "Web List": "Open Sans",
+    "Username": "Open Sans",
+    "Password": "Open Sans"
+  },
+
+  "Places": {
+    "Title": {
+      "relx": 0.5,
+      "rely": 0.25,
+      "anchor": "s"
+    },
+
+    "Password Box": {
+      "relx": 0.5,
+      "rely": 0.5,
+      "anchor": "center"
+    },
+
+    "Submit Button": {
+      "relx": 0.5,
+      "rely": 0.65,
+      "anchor": "n"
+    },
+
+    "Web List": {
+      "relx": 0.5,
+      "rely": 0.5,
+      "anchor": "n"
+    }
+  }
+}
