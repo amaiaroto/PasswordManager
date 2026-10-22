@@ -1,57 +1,89 @@
-import os
 import tkinter as tk
+
 from AuthObject import *
-# from PIL import Image, ImageTk
-# import tkFileDialog
-
-# from cryptography.fernet import Fernet
-# from cryptography.hazmat.primitives.kdf.argon2 import Argon2id
-#
-# def decrypt_file(name: str):
-#     with open(name, 'rb') as data:
-#         data = data.read()
-#
-#     return data
-#
-# password = b"1234"
-# kdf = Argon2id(length=32, iterations=1, lanes=4, memory_cost=2 ** 21, salt=os.urandom(16))
-# key = base64.urlsafe_b64encode(kdf.derive(password))
-# f = Fernet(key)
-# token = f.encrypt(password)
-
-# print(token)
-# print(f.decrypt(token))
-
-with open("configs.json") as configs:
-    configs = json.loads(configs.read())
 
 
-websites = ["google.com", "stackoverflow.com"]
+class PasswordManager:
+    def __init__(self, window_name, window_size, **kwargs):
+        with open("configs.json") as configs:
+            self.configs = json.loads(configs.read())
+
+        self.root = tk.Tk()
+
+        self.root.title(window_name)
+        self.root.geometry(window_size)
+
+        self.main_title = tk.Label(self.root)
+        self.main_title.configure(text="Enter Password", font=self.configs['Fonts']['Title'])
+
+
+websites = vault
+site_info: tk.Label
+site_info_frame: tk.Frame
+packed = False
+
+
+def select_site(event):
+    global site_info, websites, site_info_frame, packed
+
+    def show_password():
+        nonlocal show, selected
+        global site_info, websites
+
+        show = not show
+        site_info.config(
+            text=f"Username: {websites[selected[0]].username}\nPassword: "
+                 f"{websites[selected[0]].password if show else "*" * len(websites[selected[0]].password)}"
+        )
+
+    sites: tk.Listbox = event.widget
+    selected = sites.curselection()
+    show = False
+
+    site_info.config(
+        text=f"Username: {websites[selected[0]].username}\nPassword: "
+             f"{websites[selected[0]].password if show else "*" * len(websites[selected[0]].password)}")
+
+    show_button = tk.Checkbutton(site_info_frame)
+    show_button.config(text="Show", command=show_password)
+
+    if not packed:
+        show_button.pack()
+        packed = True
+
 
 def signed_in():
-    global root, websites, configs
+    global root, websites, configs, site_info, site_info_frame
 
     root.title("Password Manager \u2014 Signed In")
-
-    sites = tk.Listbox(root)
-    sites.place(**configs['Places']['Web List'])
-
-    web_scrollbar = tk.Scrollbar(root)
-    sites.config()
+    site_info_frame = tk.Frame(root)
+    site_info_frame.config(borderwidth=5, relief="raised", width=50, height=8)
+    site_info_frame.place(**configs['Places']['Web Info Frame'])
+    site_list_frame = tk.Frame(root)
+    site_list_frame.config(borderwidth=5, relief="raised", width=50, height=35)
+    site_list_frame.place(**configs['Places']['Web List Frame'])
+    site_info = tk.Label(site_info_frame)
+    site_info.config(font=configs['Fonts']['Web Info'],
+                     text="You haven't selected anything yet.\nSelect a website to view its data.",
+                     width=50, height=7)
+    site_info.pack()
+    sites = tk.Listbox(site_list_frame, height=13, width=40)
+    web_scrollbar = tk.Scrollbar(site_list_frame, orient='vertical')
+    sites.config(yscrollcommand=web_scrollbar.set)
     web_scrollbar.config(command=sites.yview)
 
-    sites.config()
-
     for s in range(len(websites)):
-        sites.insert(s, websites[s])
+        sites.insert(s, websites[s].url)
 
-    sites.bind("<<ListboxSelect>>", )
+    sites.bind("<<ListboxSelect>>", select_site)
+    web_scrollbar.pack(side="right", fill="y")
+    sites.pack(side='left', fill='y')
 
 
 def check_password(password):
     global title, master_password_box, submit_password_button
 
-    if password == 'abc':
+    if password == 'aaa':
         title.config(text="Password Manager")
         master_password_box.destroy()
         submit_password_button.destroy()
@@ -99,12 +131,6 @@ class PlaceholderEntry(tk.Entry):
 
 root = tk.Tk()
 
-# path = tkFileDialog.askopenfilename(filetypes=[("Image File", '.jpg', '.png', '.webp')])
-# im = Image.open(path)
-# tkimage = ImageTk.PhotoImage(im)
-# myvar = tk.Label(root, image=tkimage)
-# myvar.image = tkimage
-
 sh = root.winfo_screenheight()
 sw = root.winfo_screenwidth()
 
@@ -127,7 +153,7 @@ submit_password_button.config(
     width=12, font=configs['Fonts']['Submit Button'],
     command=lambda: check_password(master_password_box.get())
 )
-submit_password_button.place(**configs['Place']['Submit Button'])
+submit_password_button.place(**configs['Places']['Submit Button'])
 
 root.title("Password Manager")
 # root.wm_iconphoto(True, "pm_icon.png")
