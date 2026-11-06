@@ -1,3 +1,4 @@
+import threading
 import tkinter as tk
 from typing import Literal
 
@@ -57,14 +58,17 @@ class PasswordManager:
         self.site_info_frame = tk.Frame(self.root)
         self.site_info_frame.configure(borderwidth=5, relief="raised", width=50, height=8)
         self.site_info_frame_settings = self.configs['Places']['Web Info Frame']
+
         self.site_list_frame = tk.Frame(self.root)
         self.site_list_frame.configure(borderwidth=5, relief="raised", width=50, height=35)
         self.site_list_frame_settings = self.configs['Places']['Web List Frame']
+
         self.site_info = tk.Label(self.site_info_frame)
         self.site_info.configure(font=self.configs['Fonts']['Web Info'],
                                  text="You haven't selected anything yet.\nSelect a website to view its properties.",
                                  width=50, height=7)
         self.site_info_settings = self.configs['Places']['Site Info']
+
         self.show_button = tk.Checkbutton(self.site_info_frame)
         self.show_button.configure(text="Show", command=self.show_password_toggle)
         self.show_button_settings = self.configs['Places']['Show Button']
@@ -73,10 +77,14 @@ class PasswordManager:
 
         self.site_listbox = tk.Listbox(self.site_list_frame, height=13, width=40)
         self.web_scrollbar = tk.Scrollbar(self.site_list_frame, orient='vertical')
+
         self.site_listbox.configure(yscrollcommand=self.web_scrollbar.set)
         self.web_scrollbar.configure(command=self.site_listbox.yview)
+
         self.site_listbox_settings = self.configs['Places']['Web Listbox']
         self.web_scrollbar_settings = self.configs['Places']['Web Scrollbar']
+
+        self.running: bool = True
 
     def password_show_check(self):
         selected = self.site_listbox.curselection()
@@ -90,6 +98,10 @@ class PasswordManager:
             self.show_button.pack(**self.show_button_settings)
             self.show_button_packed = True
 
+        else:
+            self.show_button.pack_forget()
+            self.show_button_packed = False
+
         self.show = not self.show
         self.password_show_check()
 
@@ -99,6 +111,62 @@ class PasswordManager:
             self.master_password_box.place_forget()
             self.submit_button.place_forget()
             self.state = States.sign_in
+
+    def state_display(self):
+        while self.running:
+            if self.state == States.main:
+                if self.master_password_box.get():
+                    self.event_state = States.main_password_entered
+
+                else:
+                    self.event_state = States.main_password_not_entered
+
+            if self.state == States.sign_in:
+                if self.site_listbox.curselection():
+                    self.event_state = States.password_selected
+
+                else:
+                    self.event_state = States.password_unselected
+
+            match self.state, self.event_state:
+                case States.main, (States.main_password_entered | States.main_password_not_entered):
+                    self.main_title.place(**self.main_title_settings)
+                    self.master_password_box.place(**self.master_password_box_settings)
+                    self.submit_button.place(**self.submit_button_settings)
+
+                case States.main, States.main_password_not_entered:
+                    self.submit_button['state'] = 'disabled'
+
+                case States.main, States.main_password_entered:
+                    self.submit_button['state'] = 'normal'
+
+                case States.sign_in, (States.password_unselected | States.password_selected):
+                    self.site_info_frame.place(**self.site_info_frame_settings)
+                    self.site_info.pack(**self.site_info_settings)
+                    self.site_list_frame.place(**self.site_list_frame_settings)
+                    self.site_listbox.pack(**self.site_listbox_settings)
+
+                    for s in range(len(self.site_list)):
+                        self.site_listbox.insert(s, self.site_list[s].url)
+
+                case States.sign_in, States.password_unselected:
+                    self.show_button.pack_forget()
+                    self.show_button_packed = False
+                    self.password_show_check()
+
+                case States.sign_in, States.password_selected:
+                    self.show_button.pack(**self.show_button_settings)
+                    self.show_button_packed = True
+                    self.password_show_check()
+
+    def main(self):
+        display_thread = threading.Thread(target=self.state_display)
+        display_thread.start()
+
+        sw, sh = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
+
+        self.root.geometry(f'{int(sw // 1.2 if sw > 1250 else sw)}x{int(sh // 1.25 if sh > 850 else sh)}')
+        self.root.mainloop()
 
 
 # websites = vault
@@ -241,4 +309,4 @@ class PlaceholderEntry(tk.Entry):
 # root.title("Password Manager")
 # root.wm_iconphoto(True, "pm_icon.png")
 pm = PasswordManager("Password Manager", websites=vault)
-pm.root.mainloop()
+pm.main()
