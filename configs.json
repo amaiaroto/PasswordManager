@@ -36,6 +36,26 @@
       "relx": 0.65,
       "rely": 0.5,
       "anchor": "n"
+    },
+
+    "Web Listbox": {
+      "side": "left",
+      "fill": "y"
+    },
+
+    "Web Scrollbar": {
+      "side": "right",
+      "fill": "y"
+    },
+
+    "Site Info": {
+      "side": "top",
+      "fill": "x"
+    },
+
+    "Show Button": {
+      "side": "bottom",
+      "fill": "x"
     }
   }
 }
