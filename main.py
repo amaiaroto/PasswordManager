@@ -202,6 +202,6 @@ class PlaceholderEntry(tk.Entry):
             self['show'] = None
             self.put_placeholder()
 
-
-pm = PasswordManager("Password Manager")
-pm.main()
+if __name__ == "__main__":
+    pm = PasswordManager("Password Manager")
+    pm.main()
