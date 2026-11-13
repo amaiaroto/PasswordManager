@@ -84,6 +84,10 @@ class PasswordManager:
         self.site_listbox_settings = self.configs['Places']['Web Listbox']
         self.web_scrollbar_settings = self.configs['Places']['Web Scrollbar']
 
+        # self.web_name = tk.Label()
+        # self.web_name_settings = self.configs['Places']['Web Title']
+        # TODO add site title like example.com\nblah
+
         self.running: bool = True
 
     def password_show_check(self):
