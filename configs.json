@@ -4,7 +4,9 @@
     "Password Box": ["Open Sans", 54],
     "Submit Button": ["Open Sans", 28],
     "Web List": ["Open Sans", 42],
-    "Web Info": ["Open Sans", 17]
+    "Web Info": ["Open Sans", 17],
+    "Status Label": ["Open Sans", 21],
+    "Default": ["Open Sans", 19]
   },
 
   "Places": {
@@ -56,6 +58,12 @@
     "Show Button": {
       "side": "bottom",
       "fill": "x"
+    },
+
+    "Verifying/Error Label": {
+      "relx": 0.5,
+      "rely": 0.3,
+      "anchor": "n"
     }
   }
 }
