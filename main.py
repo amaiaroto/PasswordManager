@@ -54,7 +54,7 @@ class PasswordManager:
         self.add_button = tk.Button(self.root)
         self.add_button.configure(text="Add Password", font=self.configs["Fonts"]["Places"], width=16,
                                   command=self.add_password)
-        # TODO: complete the ADD_PASSWORD and "DELETE/REMOVE"_PASSWORD by next Tuesday
+        # TODO: complete the ADD_PASSWORD and "DELETE/REMOVE"_PASSWORD by end of Tuesday
 
         self.site_info_frame = tk.Frame(self.root)
         self.site_info_frame.configure(borderwidth=5, relief="raised", width=50, height=8)
