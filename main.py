@@ -13,9 +13,11 @@ class States(Enum):
 
 
 class PasswordManager:
-    def __init__(self, window_name, window_size=None, **kwargs):
+    def __init__(self, window_name, window_size=None):
         self.root = tk.Tk()
         self.sites = []
+        self.selected = None
+        self.password = None
 
         if window_size is not None:
             self.root.geometry(window_size)
@@ -45,15 +47,30 @@ class PasswordManager:
 
         self.status = tk.Label(self.root)
         self.status.configure(text="Verifying... please wait...", font=self.configs["Fonts"]["Status Label"])
-        self.status_settings = self.configs["Places"]["Verifying/Error Label"]
+        self.status_settings = self.configs["Places"]["Status Label"]
 
         # SIGNEDIN Widgets
         self.show = False
         self.show_button_packed = False
 
+        self.add_info_frame = tk.Frame(self.root)
+        self.add_info_frame_setings = self.configs["Places"]["Password Info Frame"]
+
+        self.url_field = PlaceholderEntry(self.root, "URL")
+        self.url_field.configure(width=50, font=self.configs["Fonts"]["Default"])
+        self.url_field_setings = self.configs["Places"]["URL Field"]
+
+        self.username_field = PlaceholderEntry(self.root, "USERNAME")
+        self.username_field.configure(width=25, font=self.configs["Fonts"]["Default"])
+        self.username_field_setings = self.configs["Places"]["USERNAME Field"]
+
+        self.password_field = PlaceholderEntry(self.root, "PASSWORD")
+        self.password_field.configure(width=25, font=self.configs["Fonts"]["Default"])
+        self.password_field_settings = self.configs["Places"]["PASSWORD Field"]
+
         self.add_button = tk.Button(self.root)
-        self.add_button.configure(text="Add Password", font=self.configs["Fonts"]["Places"], width=16,
-                                  command=self.add_password)
+        self.add_button.configure(text="Add Password", font=self.configs["Fonts"]["Default"], width=16,
+                                  command=self.add_password, height=5)
         # TODO: complete the ADD_PASSWORD and "DELETE/REMOVE"_PASSWORD by end of Tuesday
 
         self.site_info_frame = tk.Frame(self.root)
@@ -66,7 +83,7 @@ class PasswordManager:
 
         self.site_info = tk.Label(self.site_info_frame)
         self.site_info.configure(font=self.configs["Fonts"]["Web Info"],
-                                 text="You have not selected anything yet.\nSelect one to view its properties.",
+                                 text="You have not selected a website yet.\nSelect one to view its properties.",
                                  width=50, height=7)
         self.site_info_settings = self.configs["Places"]["Site Info"]
 
@@ -92,11 +109,11 @@ class PasswordManager:
         self.listbox_insert = True
 
     def password_show_check(self):
-        selected = self.site_listbox.curselection()
-        password = self.sites[selected[0]][EntryInfo.PASSWORD.value]
+        self.selected = self.site_listbox.curselection()
+        password = self.sites[self.selected[0]][EntryInfo.PASSWORD.value]
 
         self.site_info.config(
-            text=f"Username: {self.sites[selected[0]][EntryInfo.USERNAME.value]}\nPassword: "
+            text=f"Username: {self.sites[self.selected[0]][EntryInfo.USERNAME.value]}\nPassword: "
                  f"{password if self.show else "*" * len(password)}")
 
     def show_password_toggle(self):
@@ -107,13 +124,23 @@ class PasswordManager:
         self.show = not self.show
         self.password_show_check()
 
-    def add_password(self, password):
-        ...
+    def add_password(self):
+        self.sites.append([self.url_field.get(), self.password_field.get(), self.username_field.get()])
+
+        write_vault("passwords.json", self.sites)
+        encrypt_vault("passwords.json", self.password)
+
+    def remove_password(self):
+        self.sites.remove(self.selected[0])
+
+        write_vault("passwords.json", self.sites)
+        encrypt_vault("passwords.json", self.password)
 
     def check_password(self, password):
         try:
             self.status.place(**self.status_settings)
             self.sites = decrypt_file("passwords.json", password)
+            self.password = password
             self.main_title.configure(text="Password Manager")
             self.master_password_box.place_forget()
             self.status.place_forget()

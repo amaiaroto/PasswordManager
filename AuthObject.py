@@ -118,7 +118,7 @@ def vault_init(file, sites: str):
 
 if __name__ == '__main__':
     # Main INIT and READ testing
-
+    # format [[URL, PASSWORD, USERNAME]]
     vault_init('passwords.json',
                '[["undertale.com", "sanstheskeleton", "snasthesnalakon"]]')
     print(decrypt_file('passwords.json', input("PASSWORD: ")))

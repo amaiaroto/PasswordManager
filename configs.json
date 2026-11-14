@@ -60,10 +60,31 @@
       "fill": "x"
     },
 
-    "Verifying/Error Label": {
+    "Status Label": {
       "relx": 0.5,
       "rely": 0.3,
       "anchor": "n"
+    },
+
+    "Password Info Frame": {
+      "relx": 0.7,
+      "rely": 0.6,
+      "anchor": "n"
+    },
+
+    "URL Field": {
+      "side": "top",
+      "fill": "x"
+    },
+
+    "USERNAME Field": {
+      "side": "left",
+      "fill": "x"
+    },
+
+    "PASSWORD Field": {
+      "side": "right",
+      "fill": "x"
     }
   }
 }
