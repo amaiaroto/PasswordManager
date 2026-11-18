@@ -2,6 +2,7 @@ import base64
 import json
 import os
 from enum import Enum
+from hashlib import sha256
 
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives.kdf.argon2 import Argon2id
@@ -45,19 +46,19 @@ def write_vault(file, vault):
     :return:
     """
 
-    with open(file, 'w') as f:
-        f.write(vault)
+    with open(file, "w") as f:
+        f.write(vault.replace("'", "\""))
 
 
-def encrypt_vault(file, password):
+def encrypt_vault(file, password: bytes):
     global kdf
 
     # open file in reading mode
     # read entire ContentD
-    # check if it's json
+    # check if it"s json
     # if it is, then encript it
     #     save the encripted content to the file
-    # if it's not, do nothing
+    # if it"s not, do nothing
     with open(file, "r") as f:
         vault = f.read()
 
@@ -65,6 +66,7 @@ def encrypt_vault(file, password):
         json.loads(vault)
 
     except json.decoder.JSONDecodeError:
+        print("INVALID INPUT")
         return
 
     vault = base64.urlsafe_b64encode(vault.encode())
@@ -79,7 +81,7 @@ def encrypt_vault(file, password):
 
 
 def decrypt_file(file, password):
-    with open(file, 'rb') as data:
+    with open(file, "rb") as data:
         data = data.read()
 
     # Convert the password into a key
@@ -116,9 +118,9 @@ def vault_init(file, sites: str):
     encrypt_vault(file, input('Enter password: ').encode())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Main INIT and READ testing
     # format [[URL, PASSWORD, USERNAME]]
-    vault_init('passwords.json',
-               '[["undertale.com", "sanstheskeleton", "snasthesnalakon"]]')
-    print(decrypt_file('passwords.json', input("PASSWORD: ")))
+    vault_init("passwords.json",
+               "[[\"undertale.com\", \"sanstheskeleton\", \"snasthesnalakon\"]]")
+    print(decrypt_file("passwords.json", input("PASSWORD: ")))

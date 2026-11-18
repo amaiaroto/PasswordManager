@@ -6,7 +6,7 @@
     "Web List": ["Open Sans", 42],
     "Web Info": ["Open Sans", 17],
     "Status Label": ["Open Sans", 21],
-    "Default": ["Open Sans", 19]
+    "Default": ["Open Sans", 10]
   },
 
   "Places": {
@@ -67,8 +67,8 @@
     },
 
     "Password Info Frame": {
-      "relx": 0.7,
-      "rely": 0.6,
+      "relx": 0.5,
+      "rely": 0.4,
       "anchor": "n"
     },
 
