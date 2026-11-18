@@ -85,6 +85,18 @@
     "PASSWORD Field": {
       "side": "right",
       "fill": "x"
+    },
+
+    "Add Password": {
+      "relx": 0.35,
+      "rely": 0.3,
+      "anchor": "n"
+    },
+
+    "Remove Password": {
+      "relx": 0.65,
+      "rely": 0.3,
+      "anchor": "n"
     }
   }
 }
