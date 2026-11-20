@@ -122,5 +122,5 @@ if __name__ == "__main__":
     # Main INIT and READ testing
     # format [[URL, PASSWORD, USERNAME]]
     vault_init("passwords.json",
-               "[[\"undertale.com\", \"sanstheskeleton\", \"snasthesnalakon\"]]")
+               "{\"data\": [[\"undertale.com\", \"sanstheskeleton\", \"snasthesnalakon\"]], \"show\": false")
     print(decrypt_file("passwords.json", input("PASSWORD: ")))

@@ -14,6 +14,8 @@ class States(Enum):
 
 class PasswordManager:
     def __init__(self, window_name, window_size=None):
+        self.show_warning = None
+        self.raw_data = {}
         self.root = tk.Tk()
         self.sites = []
         self.selected = None
@@ -149,18 +151,68 @@ class PasswordManager:
         return True
 
     def remove_password(self):
-        try:
-            self.sites.remove(self.selected[0])
-            print(self.sites)
+        confirm_false = None
 
-        except ValueError as e:
-            print(e)
+        def toggle():
+            nonlocal self
+
+            self.show_warning = not self.show_warning
+
+        def confirm():
+            nonlocal confirm_false
+
+            confirm_false = True
+
+        def cancel():
+            nonlocal confirm_false
+
+            confirm_false = False
+
+        # https://www.pythontutorial.net/tkinter/tkinter-toplevel/
+        class WarningMessage(tk.Toplevel):
+            def __init__(self, parent,
+                         toggle_func,
+                         yes_func=None,
+                         no_func=None,
+                         show=True):
+                super().__init__(parent)
+
+                if no_func is None:
+                    no_func = self.destroy()
+
+                if yes_func is None:
+                    yes_func = self.destroy()
+
+                self.geometry("110x150")
+                self.title("Delete Entry")
+
+                self.cancel = tk.Button(self, text="Cancel", command=no_func, width=9)
+                self.confirm = tk.Button(self, text="Confirm", command=yes_func, width=9)
+                self.dontshowagain_checkbox = tk.Checkbutton(self, text="Do not show again", command=toggle_func)
+
+                self.cancel.grid(column=0, row=0)
+                self.confirm.grid(column=1, row=0)
+
+                if show:
+                    self.dontshowagain_checkbox.pack(side="bottom")
+
+        warning_msg = WarningMessage(self.root, toggle, confirm, cancel)
+
+        if confirm_false:
             return False
 
-        write_vault("passwords.json", self.sites)
+        try:
+            self.sites.pop(self.selected[0])
+
+        except ValueError as error:
+            print(error)
+
+            return False
+
+        write_vault("passwords.json", str(self.sites))
         encrypt_vault("passwords.json", self.password.encode())
 
-        self.site_listbox.delete("first", "end")
+        self.site_listbox.delete(self.selected[0], self.selected[0])
         self.listbox_insert = True
         self.state_display()
 
@@ -169,12 +221,17 @@ class PasswordManager:
     def check_password(self, password):
         try:
             self.status.place(**self.status_settings)
-            self.sites = decrypt_file("passwords.json", password)
+
+            self.raw_data = decrypt_file("passwords.json", password)
+            self.sites = self.raw_data["data"]
+            self.show_warning = self.raw_data["show"]
             self.password = password
+
             self.main_title.configure(text="Password Manager")
             self.master_password_box.place_forget()
             self.status.place_forget()
             self.submit_button.place_forget()
+
             self.state = States.sign_in
             self.state_display()
 
